@@ -9,3 +9,19 @@ button {
     height: auto;
     border: 1px solid #000;
 }
+
+a{   
+    margin: 10px 0px;
+    width: 140;
+    height: auto;
+}
+.spot{
+    background-color: green; border-color: green
+}
+.yan{
+    background-color: yellow; border-color: yellow;
+}
+.layer {
+    margin: 0 auto;
+    display: block;
+}
