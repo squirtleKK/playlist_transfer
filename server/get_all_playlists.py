@@ -2,6 +2,7 @@ import code
 from doctest import master
 from http import client
 from platform import platform
+from turtle import position
 import requests
 from abc import ABC, abstractmethod
 import json
@@ -48,30 +49,74 @@ class Platforms ():
 # a = Vk_playlist(8132546, token)
 
 class Spotify_playlists_actions (Platforms):
-    def get_playlists(self):
-        self.response = requests.get("https://api.spotify.com/v1/me/playlists", headers={
-            "Authorization":'Bearer ' + self.access_token,
-            "Content-Type": "application/json"
-        })
-        self.user_id = self.response.json ()
+    def get_playlists(self, access_token):
+        offset_1 = 0
+        self.items = ["a"]
         self.list_of_playlists = []
-        print (self.user_id.get("items"))
-        for i in self.user_id.get("items"):
-            self.list_of_playlists.append ((i.get("name"), i.get("id"), i.get("images")))
-        # print ("\n", self.list_of_playlists[0][1])
-        print ("\n", self.get_music_from_playlist(self.list_of_playlists[3][1]))
+        while True:
+            self.response = requests.get(f"https://api.spotify.com/v1/me/playlists?limit=50&offset={offset_1}", headers={
+                "Authorization":'Bearer ' + access_token,
+                "Content-Type": "application/json"
+            })
+            self.playlist_data = self.response.json ()
+            offset_1 = int(self.playlist_data.get ("offset"))+int(self.playlist_data.get("limit"))
+            self.items = self.playlist_data.get ("items")
+            if not self.items:
+                return self.list_of_playlists
+            else:
+                for i in self.items:
+                    self.list_of_playlists.append ((i.get("name"), i.get("id"), i.get("images")))
+        # print (self.user_id.get("items"))
+        # self.add_track_to_playlist (self.access_token,self.list_of_playlists[4][1],self.get_only_tracks_ids(self.get_music_from_playlist (self.access_token, self.list_of_playlists[3][1])))
         
-    def add_track_to_playlist(self,playlist_id,track):
-        self.add_track = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers={
-            "Authorization":'Bearer ' + self.access_token,
-            "Content-Type": "application/json"
-        }, data={
-            "uris": [f"spotify:track:{track}"]
-        })
-    def get_music_from_playlist (self, playlist_id):
-        self.music = requests.get (f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?fields=items(track(name,id,artists(name)))', headers={"Authorization":'Bearer ' + self.access_token,
-            "Content-Type": "application/json"})
-        return self.music.json()
+    def get_only_tracks_ids (music_data):
+        lst = []
+        for i in music_data:
+            lst.append(i[2])
+        
+    def add_track_to_playlist(self,access_token,playlist_id,tracks):
+        self.track_to_add_in_suitable_format = []
+        for i in range (len(tracks)):
+            self.track_to_add_in_suitable_format.append (f"spotify:track:{tracks[i]}")
+        if (len(self.track_to_add_in_suitable_format)//100 <= 0):
+            self.add_track = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?position=0", headers={
+                "Authorization":'Bearer ' + access_token,
+                "Content-Type": "application/json"
+                }, data=json.dumps({
+                "uris":self.track_to_add_in_suitable_format,
+                }))
+            # print (self.add_track.text)
+        else:
+            for i in range (len(self.track_to_add_in_suitable_format)//100):
+                self.tracks_to_add = []
+                for j in range (i*100, len(self.track_to_add_in_suitable_format)-(len(self.track_to_add_in_suitable_format)//100 -1-i)*100):
+                    self.tracks_to_add.append (self.track_to_add_in_suitable_format[j])
+                self.add_track = requests.post(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?position=0", headers={
+                "Authorization":'Bearer ' + access_token,
+                "Content-Type": "application/json"
+                }, data=json.dumps({
+                    "uris":self.tracks_to_add,
+                }))
+                # print (self.add_track.text)
+    
+    def get_music_from_playlist (self,access_token, playlist_id):
+        self.tracks = []
+        offset_1 = 0
+        self.items = ["a"]
+        while True:
+            self.music = requests.get (f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks?fields=offset,limit,items(track(name,id,artists(name)))&offset={offset_1}&limit=100', headers={"Authorization":'Bearer ' + access_token,
+                "Content-Type": "application/json"})
+            self.music = self.music.json()
+            # print ("\n",self.music)
+            offset_1 = int(self.music.get ("offset"))+int(self.music.get("limit"))
+            self.items = self.music.get ("items")
+            if not self.items:
+                return self.tracks
+            else:
+                for i in self.items:
+                    self.tracks.append ((i["track"]["artists"], i["track"]["name"], i["track"]["id"]))
+            
+
     def get_access_token(self, code):
         self.response = requests.post("https://accounts.spotify.com/api/token", data={
             "code": code,
@@ -80,9 +125,15 @@ class Spotify_playlists_actions (Platforms):
             "client_id": client_id,
             "client_secret": client_secret,
         })
+        
         self.data = self.response.json()
-        self.access_token = self.data["access_token"]
-        print(self.access_token)
+        try:
+            self.access_token = self.data["access_token"]
+        except:
+            self.access_token = "error"
+        return self.access_token
+        
+            
 
 
 class Platform_factory ():

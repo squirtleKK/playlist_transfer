@@ -23,26 +23,26 @@
             <div class="col-6">
                 <div class="block-playlist d-flex flex-column">
                     <P>Откуда</P>
-                    <button class="spot btn btn-primary" name="spotify">spotify</button>
-                    <button class="btn btn-primary" name="vk">vk music</button>
-                    <button class="yan btn btn-primary" name="yandex">yandex music</button>
+                    <button class="spot btn btn-primary" id="spotify" disabled>spotify</button>
+                    <button class="btn btn-primary" id="vk" disabled>vk music</button>
+                    <button class="yan btn btn-primary" id="yandex" disabled>yandex music</button>
                 </div>
             </div>
             
             <div class="col-6 d-flex flex-column">
                 <div class = "block-playlist d-flex flex-column">
                 <p>Куда</p>
-                <button class="spot btn btn-primary" name="spotify">spotify</button>
-                <button class="btn btn-primary" name="vk">vk music</button>
-                <button class="yan btn btn-primary" name="yandex">yandex music</button>
+                <button class="spot btn btn-primary" id="spotify_wh" disabled>spotify</button>
+                <button class="btn btn-primary" id="vk_wh" disabled>vk music</button>
+                <button class="yan btn btn-primary" id="yandex_wh" disabled>yandex music</button>
             </div>
             </div>
         </div>
         
-    <a href="https://accounts.spotify.com/authorize?client_id=39243b4ec71846159b2d26d29c84cae1&response_type=code&redirect_uri=http://127.0.0.1:3000/authtoken&scope=playlist-modify-public,user-library-modify,user-library-read,playlist-read-private,playlist-modify-private" class = "spot btn btn-primary ">auth spot</a>
+    <a href="https://accounts.spotify.com/authorize?client_id=39243b4ec71846159b2d26d29c84cae1&response_type=code&redirect_uri=http://127.0.0.1:3000/authtoken&scope=playlist-modify-public,user-library-modify,user-library-read,playlist-read-private,playlist-modify-private,playlist-read-collaborative" class = "spot btn btn-primary ">auth spot</a>
     <a href="" class = "btn btn-primary">auth vk</a>
     <a href="" class = "yan btn btn-primary">auth yandex</a>
-    <button class = "layer btn btn-primary" name = "submit">submit</button>
+    <button class = "layer btn btn-primary" id = "submit">submit</button>
 
     </div>
     
