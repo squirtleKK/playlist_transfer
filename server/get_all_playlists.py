@@ -6,6 +6,9 @@ from turtle import position
 import requests
 from abc import ABC, abstractmethod
 import json
+import yandex_music
+
+
 client_id = "39243b4ec71846159b2d26d29c84cae1"
 client_secret = "5afc07b276be41a2be51c3f9e7bda2b1"
 
@@ -133,9 +136,21 @@ class Spotify_playlists_actions (Platforms):
             self.access_token = "error"
         return self.access_token
         
-            
+class Yandex_playlists_actions (Platforms):
+    def get_access_token(self, code):
+        pass
+    def get_playlists(self):
+        client = yandex_music.Client('AQAAAABhN2XBAAG8Xh477qOv40qEj9JVd1NIzUY').init()
+        self.uid = client["me"]["account"]["uid"]
+        playlist_ids =  yandex_music.playlist.playlist_id.PlaylistId(uid = self.uid, kind = 1000)
+        playlist = yandex_music.playlist.playlist.Playlist ()
+
 
 
 class Platform_factory ():
     def get_platform():
-        return Spotify_playlists_actions()
+        return Yandex_playlists_actions()
+
+
+k = Yandex_playlists_actions()
+k.get_playlists ()
