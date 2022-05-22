@@ -164,16 +164,20 @@ class Yandex_playlists_actions (Platforms):
             self.playlists_info.append ({"tracks":self.playlist_data['tracks'], "title":self.playlist_data['_id_attrs'][2], "playlist_uid": self.playlist_data['playlist_uuid'], "cover":self.playlist_data["cover"]})
         
         self.kind += 1
+        
         self.get_tracks (self.playlists_info[0]["tracks"])
+        
+        
+        print (self.playlists_info[0])
     def get_tracks (self, tracks_dict):
         self.tracks_info = []
         for i in tracks_dict:
-            self.tracks_info.append ({"track_id":tracks_dict["id"], "title":tracks_dict["track"]["title"], "arists": []})
             self.artists = []
-            for i in range (len (tracks_dict["track"]["artists"])):
-                self.artists.append (tracks_dict["track"]["artists"][i]["name"])
-            self.tracks_info[i]["artists"] = self.artists
-        print (self.tracks_info)
+            for j in range (len (i["track"]["artists"])):
+                self.artists.append (i["track"]["artists"][j]["name"])
+            
+            self.tracks_info.append ({"track_id":i["id"], "title":i["track"]["title"], "artists":self.artists})
+        # print (self.tracks_info)
 
 
 
