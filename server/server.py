@@ -3,7 +3,6 @@ from os import access
 from flask import Flask, render_template, request, redirect
 from flask_socketio import SocketIO, emit
 import sys
-from aiohttp import ClientSession
 from get_all_playlists import *
 
 app = Flask (__name__)

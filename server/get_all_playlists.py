@@ -1,12 +1,13 @@
 import code
 from doctest import master
-from http import client
+from logging import exception
 from platform import platform
 from turtle import position
 import requests
 from abc import ABC, abstractmethod
 import json
 import yandex_music
+from pprint import pprint as print
 
 
 client_id = "39243b4ec71846159b2d26d29c84cae1"
@@ -139,18 +140,48 @@ class Spotify_playlists_actions (Platforms):
 class Yandex_playlists_actions (Platforms):
     def get_access_token(self, code):
         pass
-    def get_playlists(self):
-        client = yandex_music.Client('AQAAAABhN2XBAAG8Xh477qOv40qEj9JVd1NIzUY').init()
-        self.uid = client["me"]["account"]["uid"]
-        playlist_ids =  yandex_music.playlist.playlist_id.PlaylistId(uid = self.uid, kind = 1000)
-        playlist = yandex_music.playlist.playlist.Playlist ()
+    def get_playlists(self,access_token):
+        self.client = yandex_music.Client(access_token).init()
+        self.uid = self.client["me"]["account"]["uid"]
+        self.playlists_info = []
+       
+        self.kind = 1000
+        self.empty_kinds = 0
+        self.missed_playlists = 5
+        while True:
+            # print (self.empty_kinds)
+            if self.empty_kinds >= self.missed_playlists:
+                break
+            try:
+                self.playlist_ids =  yandex_music.playlist.playlist_id.PlaylistId(uid = self.uid, kind = self.kind, client = self.client)
+                self.playlist_data = self.playlist_ids.fetch_playlist ().__dict__
+            except:
+                self.empty_kinds+=1
+                self.kind += 1
+                continue
+            self.empty_kinds = 0
+            self.kind += 1
+            self.playlists_info.append ({"tracks":self.playlist_data['tracks'], "title":self.playlist_data['_id_attrs'][2], "playlist_uid": self.playlist_data['playlist_uuid'], "cover":self.playlist_data["cover"]})
+        
+        self.kind += 1
+        self.get_tracks (self.playlists_info[0]["tracks"])
+    def get_tracks (self, tracks_dict):
+        self.tracks_info = []
+        for i in tracks_dict:
+            self.tracks_info.append ({"track_id":tracks_dict["id"], "title":tracks_dict["track"]["title"], "arists": []})
+            self.artists = []
+            for i in range (len (tracks_dict["track"]["artists"])):
+                self.artists.append (tracks_dict["track"]["artists"][i]["name"])
+            self.tracks_info[i]["artists"] = self.artists
+        print (self.tracks_info)
+
 
 
 
 class Platform_factory ():
     def get_platform():
-        return Yandex_playlists_actions()
+        return Spotify_playlists_actions()
 
 
 k = Yandex_playlists_actions()
-k.get_playlists ()
+k.get_playlists ('AQAAAABhN2XBAAG8Xh477qOv40qEj9JVd1NIzUY')
