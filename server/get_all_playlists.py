@@ -3,11 +3,12 @@ from doctest import master
 from logging import exception
 from platform import platform
 from turtle import position
+from unittest import result
 import requests
 from abc import ABC, abstractmethod
 import json
 import yandex_music
-from pprint import pprint as print
+# from pprint import pprint as print
 
 
 client_id = "39243b4ec71846159b2d26d29c84cae1"
@@ -135,7 +136,19 @@ class Spotify_playlists_actions (Platforms):
             self.access_token = self.data["access_token"]
         except:
             self.access_token = "error"
+        self.search ("Heat Waves",['Glass Animals', 'iann dior'])
         return self.access_token
+    def search (self, title: str, artists : list):
+        q = ""
+        for i in artists:
+            q += i + " "
+        print (f'{title}+{q}')
+        self.response = requests.get ("https://api.spotify.com/v1/search", params= {
+            'type': 'track',
+            # 'include_external' : 'audio',
+            "q" : f"track:{title}+artist:{q}"
+        }, headers={"Authorization":'Bearer ' + self.access_token})
+        print (self.response.text)
         
 class Yandex_playlists_actions (Platforms):
     def get_access_token(self, code):
@@ -166,9 +179,6 @@ class Yandex_playlists_actions (Platforms):
         self.kind += 1
         
         self.get_tracks (self.playlists_info[0]["tracks"])
-        
-        
-        print (self.playlists_info[0])
     def get_tracks (self, tracks_dict):
         self.tracks_info = []
         for i in tracks_dict:
@@ -177,7 +187,21 @@ class Yandex_playlists_actions (Platforms):
                 self.artists.append (i["track"]["artists"][j]["name"])
             
             self.tracks_info.append ({"track_id":i["id"], "title":i["track"]["title"], "artists":self.artists})
-        # print (self.tracks_info)
+        print (self.tracks_info)
+        self.search (artists= self.tracks_info[3]["artists"], title=self.tracks_info[3]["title"])
+    def search (self, artists : list, title: str):
+        query = title
+        for i in artists:
+            query += " " + i
+        track_info = {"track_id": int, "title":str ,"artists": []}
+        search_result = self.client.search(query).best
+        track_info["track_id"] = search_result["result"]["id"]
+        track_info["title"] = search_result["result"]["title"]
+        for i in search_result["result"]["artists"]:
+            track_info["artists"].append (i["name"])
+        return track_info
+
+        
 
 
 
@@ -188,4 +212,7 @@ class Platform_factory ():
 
 
 k = Yandex_playlists_actions()
-k.get_playlists ('AQAAAABhN2XBAAG8Xh477qOv40qEj9JVd1NIzUY')
+f = Spotify_playlists_actions ()
+# k.get_playlists ('AQAAAABhN2XBAAG8Xh477qOv40qEj9JVd1NIzUY')
+
+# f.search ("Heat Waves",['Glass Animals', 'iann dior'])

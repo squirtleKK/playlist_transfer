@@ -20,7 +20,7 @@ def get_token():
     platform.get_playlists (access_token)
     if access_token != "error":
         playlists_data = platform.get_playlists (access_token)
-        print (playlists_data)
+        # print (playlists_data)
     return redirect("/")
 
 
